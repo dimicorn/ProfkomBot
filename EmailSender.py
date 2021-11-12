@@ -12,9 +12,9 @@ def send_email(receiver, key):
     receiver_email = receiver
     password = config["sender_email_password"]
     # FixMe: make that the email was in russian and add email subject
-    message = "\
-    Subject: confirmation code\n\n\nHello! Your code to confirm the mail of the trade union committee:\n" + str(key) +\
-              "\nSincerely, profkomBot "  # 🤖
+    message = "Subject: Сonfirmation code\n" \
+              "\n\nHello! Your code to confirm the mail of the trade union committee:\n" + str(key) + \
+              "\nSincerely,\n profkomBot "  # 🤖
 
     context = ssl.create_default_context()
     with smtplib.SMTP(smtp_server, port) as server:

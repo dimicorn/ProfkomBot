@@ -3,6 +3,8 @@ from telebot import types
 import json
 import EmailSender
 import time
+import GoogleSheets
+
 
 # auth_status has values:
 # not auth - if user is not authorized
