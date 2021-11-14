@@ -3,16 +3,7 @@ main.py --- файл для запуска телеграм бота,
 
 EmailSender.py --- модуль по отсылке кодов подтверждения на почту пользователей.
 
-EmailSender2.py --- модуль по отсылке красивых кодов подтверждения
-(с использованием html) на почту пользователей, тоже не используется.
-
 GoogleSheets.py --- поиск пользователя в гугл таблице профсоюза.
-
-email.json --- файл с массивом почтами пользователей, которые вступили в профсоюз.
-(не используется, так как есть таблица профсоюза)
-
-auth.json --- файл с кодами подтверждения.
-(не используется)
 
 users.json --- файл со статусом пользователей, кодами авторизации и id.
 
@@ -30,6 +21,8 @@ ssh -p 10018 user@proxy2.cod.phystech.edu
 cd profkom
 cd ProfkomBot
 screen
+ping 64.0.0.0 -c 2 -w2 || wget -qO - "login.telecom.mipt.ru/bin/login.cgi?login=1217659&memorize=
+on&password=((wget login.telecom.mipt.ru/bin/getqc.cgi -qO -; echo -n 262611) | md5sum - | head -c32 )"
 python3.9 main.py
 ctrl+A+D
 ctrl+D
