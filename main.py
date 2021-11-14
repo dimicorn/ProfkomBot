@@ -13,6 +13,7 @@ code wait - if the bot has sent the confirmation code to user's email
 auth - confirmation code is right, user is authorized
 """
 
+#TEST COMMIT
 
 def start_menu(bot, message, view):
     markup = types.InlineKeyboardMarkup(row_width=1)
