@@ -5,10 +5,11 @@ import random
 import config
 import database
 
+
 def check_email(message):
     email = message.text
     length = len(email)
-    if email[length-13:length] == '@phystech.edu':
+    if email[length - 13:length] == '@phystech.edu':
         send_code(message)
         text = 'На вашу почту выслан код, введите его'
         return text
@@ -18,7 +19,6 @@ def check_email(message):
 
 
 def send_code(message):
-
     code = random.randint(100000, 999999)
     print(code)
 
@@ -55,4 +55,3 @@ def check_code(message, user_code):
         return 'Вы прошли верификацию'
     else:
         return 'Вы ввели неправильный код :(\n\nПопробуйте еще раз!'
-

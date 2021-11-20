@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime, timedelta
 import pandas as pd
 
+
 def check_verification(message):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
@@ -11,10 +12,11 @@ def check_verification(message):
     query = f"SELECT * FROM users WHERE username='{username}'"
     cursor.execute(query)
     data = cursor.fetchone()
-    if data == None:
+    if data is None:
         return False
     else:
         return True
+
 
 def add_code(message, code, email):
     conn = sqlite3.connect("users.db")
@@ -23,6 +25,7 @@ def add_code(message, code, email):
     query = f'INSERT INTO verification VALUES ("{message.from_user.username}", "{code}", 0, "{email}")'
     cursor.execute(query)
     conn.commit()
+
 
 def check_code(message):
     conn = sqlite3.connect("users.db")
@@ -33,6 +36,7 @@ def check_code(message):
     cursor.execute(query)
     code = cursor.fetchone()[1]
     return code
+
 
 def add_attempt(message):
     conn = sqlite3.connect("users.db")
@@ -46,7 +50,7 @@ def add_attempt(message):
     if attempts == 3:
         return False
     else:
-        query = f"UPDATE verification SET attempts = {attempts+1} WHERE username = '{username}'"
+        query = f"UPDATE verification SET attempts = {attempts + 1} WHERE username = '{username}'"
         cursor.execute(query)
         conn.commit()
         return True
@@ -62,6 +66,7 @@ def ban_user(message):
     cursor.execute(query)
     conn.commit()
 
+
 def check_ban(message):
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
@@ -69,7 +74,7 @@ def check_ban(message):
     query = f"SELECT * FROM ban WHERE username='{message.from_user.username}'"
     cursor.execute(query)
     data = cursor.fetchone()
-    if data == None:
+    if data is None:
         return False
     else:
         dateString = data[1]
@@ -87,6 +92,7 @@ def check_ban(message):
         else:
             remain = (end_date - now_date)
             return remain
+
 
 def add_user(message):
     conn = sqlite3.connect("users.db")
@@ -130,7 +136,6 @@ def get_users_name(post):
 
 
 def get_visits(message):
-
     user_surname, user_group, user_name, user_second_name = get_users_data(message)
 
     data = pd.read_excel('data/fight.xlsx')
@@ -145,7 +150,7 @@ def get_visits(message):
             surname = fio_list[0]
             name = fio_list[1]
 
-            if surname == user_surname and name == user_name and group[i-1] == user_group:
+            if surname == user_surname and name == user_name and group[i - 1] == user_group:
                 return int(visits[i])
 
 

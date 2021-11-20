@@ -10,7 +10,8 @@ bot = telebot.TeleBot(token)
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     if database.check_verification(message) == False:
-        bot.send_message(message.chat.id, "Добро пожаловать! Для начала вам нужно пройти верификацию.", reply_markup=verification())
+        bot.send_message(message.chat.id, "Добро пожаловать! Для начала вам нужно пройти верификацию.",
+                         reply_markup=verification())
     else:
         text = 'Вы уже верифицированы и можете узнать количество посещений'
         bot.send_message(message.chat.id, text, reply_markup=check_visits())
@@ -25,6 +26,7 @@ def send_text(message):
         text = database.get_visits(message)
         bot.send_message(message.chat.id, text, reply_markup=check_visits())
 
+
 def verificate(message):
     if database.check_ban(message) == False:
         text = 'Введите вашу почту @phystech.edu'
@@ -34,6 +36,7 @@ def verificate(message):
         text = f'К сожалению, вы пока не можете пройти верификацию.\n\n\nОсталось ждать {database.check_ban(message)}'
         bot.send_message(message.chat.id, text, reply_markup=verification())
         bot.register_next_step_handler(message, verificate)
+
 
 def check_email(message):
     text = backend.check_email(message)
@@ -68,6 +71,7 @@ def verification():
     btn1 = types.KeyboardButton('Пройти верификацию')
     markup.add(btn1)
     return markup
+
 
 def check_visits():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
