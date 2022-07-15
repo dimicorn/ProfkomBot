@@ -4,7 +4,7 @@ import time
 import json
 from telebot import types
 import constants as const
-
+from datetime import date
 
 # random code generator
 def rand(x):
@@ -33,13 +33,13 @@ def users_file_dump(users):
 def start_menu(bot, message, view):
     markup = types.InlineKeyboardMarkup(row_width=1)
     # inline buttons
+    
     item1 = types.InlineKeyboardButton(const.material_help_name, callback_data=const.material_help)
     item2 = types.InlineKeyboardButton(const.apos_name, callback_data=const.apos)
     item3 = types.InlineKeyboardButton(const.dispensary_name, callback_data=const.dispensary)
-    item4 = types.InlineKeyboardButton(const.train_name, callback_data=const.train)
     item5 = types.InlineKeyboardButton(const.discounts_name, callback_data=const.discounts)
     item6 = types.InlineKeyboardButton(const.sos_name, callback_data=const.sos)
-    items = [item1, item2, item3, item4, item5, item6]
+    items = [item1, item2, item3, item5, item6]
     for i in items:
         markup.row(i)
     if view == const.send:
@@ -51,7 +51,7 @@ def start_menu(bot, message, view):
 
 def send_email(bot, message, email, users):
     if email[-13:] == const.phystech_email:  # checking if it's a phystech email
-        if gs.find_user(email):  # checking if it is in labor union table
+        if gs.find_user_in_profkom_list(email):  # checking if it is in labor union table
             bot.send_message(message.chat.id, const.sent_code_txt)
             # generating confirmation code
             temp = time.gmtime()
@@ -90,26 +90,26 @@ def check_code(bot, message, key, users):
 def discount_menu(bot, call):
     markup = types.InlineKeyboardMarkup(row_width=1)
     # inline buttons
-    item1 = types.InlineKeyboardButton(const.metro_name, callback_data=const.metro)
-    item2 = types.InlineKeyboardButton(const.bonus_name, callback_data=const.bonus)
-    item3 = types.InlineKeyboardButton(const.tele2_name, callback_data=const.tele2)
-    item4 = types.InlineKeyboardButton(const.skyeng_name, callback_data=const.skyeng)
-    item5 = types.InlineKeyboardButton(const.clock_name, callback_data=const.clock)
-    item6 = types.InlineKeyboardButton(const.x_fit_name, callback_data=const.x_fit)
-    item7 = types.InlineKeyboardButton(const.boltay_name, callback_data=const.boltay)
-    item8 = types.InlineKeyboardButton(const.theory_name, callback_data=const.theory)
-    item9 = types.InlineKeyboardButton(const.schnitzel_name, callback_data=const.schnitzel)
-    item10 = types.InlineKeyboardButton(const.herb_store_name, callback_data=const.herb_store)
-    item11 = types.InlineKeyboardButton(const.driving_school_name, callback_data=const.driving_school)
-    item12 = types.InlineKeyboardButton(const.buffet_name, callback_data=const.buffet)
-    item13 = types.InlineKeyboardButton(const.back_name, callback_data=const.begin)
-    items = [item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11, item12,
-             item13]
+    
+    [companies, discrs, tutorials, enddates] = gs.load_bonuses()
+
+    items = []
+    for i in range(len(companies)):
+        
+        # bonus is out of date
+        if date.fromisoformat(enddates[i]) <= date.today():
+            continue
+
+        item = types.InlineKeyboardButton(companies[i], callback_data=companies[i])
+        items.append(item)
+
     for i in range(0, len(items) - 1, 2):
         markup.row(items[i], items[i + 1])
-    markup.row(item13)
+
     bot.edit_message_text(chat_id=call.message.chat.id, text=const.discount_menu_txt,
                           message_id=call.message.message_id, reply_markup=markup)
+
+    return [companies, discrs, tutorials, enddates] 
 
 
 def back_button(data):

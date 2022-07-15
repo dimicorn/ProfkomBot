@@ -5,28 +5,35 @@ import functions as funcs
 import constants as const
 
 
-# TEST COMMIT
+class Storage:
+    bonuses_data = []
 
 def main():
-    with open(const.config_file) as a:
+    with open(const.files["config"]) as a:
         config = json.load(a)
     a.close()
 
     token = config["token"]
     bot = telebot.TeleBot(token)
+    
 
     # defining /start command
     @bot.message_handler(commands=[const.start])
     def welcome(message):
         # loading all authorized users
         users = funcs.users_file_load()
+        cur_id = str(message.from_user.id)
 
-        if str(message.from_user.id) in users and users[str(message.from_user.id)][const.auth_status] == const.auth:
+        if cur_id in users and users[cur_id][const.auth_status] == const.auth:
             # user is not first time using bot and is authorized
             funcs.start_menu(bot, message, const.send)
+
         else:  # user is not authorized/first time using the bot
-            users[message.from_user.id] = \
-                {const.id: message.from_user.id, const.auth_status: const.not_auth, const.code: const.no_code}
+            users[cur_id] = \
+                {const.id: message.from_user.id, 
+                 const.auth_status: const.not_auth, 
+                 const.code: const.no_code}
+
             markup = types.InlineKeyboardMarkup(row_width=2)
             # inline buttons
             item1 = types.InlineKeyboardButton(const.yes_name, callback_data=const.in_union)
@@ -41,12 +48,13 @@ def main():
     def echo(message):
         # loading users
         users = funcs.users_file_load()
+        cur_id = str(message.from_user.id)
 
-        if users[str(message.from_user.id)][const.auth_status] == const.auth_in_process:
+        if users[cur_id][const.auth_status] == const.auth_in_process:
             email = message.text
             funcs.send_email(bot, message, email, users)
 
-        elif users[str(message.from_user.id)][const.auth_status] == const.code_wait:
+        elif users[cur_id][const.auth_status] == const.code_wait:
             key = message.text
             funcs.check_code(bot, message, key, users)
         else:
@@ -57,6 +65,7 @@ def main():
     def callback_inline(call):
         # loading users
         users = funcs.users_file_load()
+
         try:
             if call.message:
                 bot.answer_callback_query(call.id, show_alert=False, text=const.bot_emoji)
@@ -70,9 +79,9 @@ def main():
                     users_file.close()
                 elif call.data == const.not_in_union:
                     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                          text=const.union_txt)
-                    doc = open(const.prof_file, "rb")
-                    bot.send_document(call.message.chat.id, doc)
+                                          text=const.union_txt, parse_mode=const.parse_mode)
+                    # doc = open(const.prof_file, "rb")
+                    # bot.send_document(call.message.chat.id, doc)
                 if users[str(call.message.chat.id)][const.auth_status] == const.auth:
                     if call.data == const.begin:
                         funcs.start_menu(bot, call.message, const.edit)
@@ -84,61 +93,28 @@ def main():
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                               text=const.apos_txt, parse_mode=const.parse_mode,
                                               reply_markup=funcs.back_button(const.begin))
-                        doc = open(const.apos_file, "rb")
-                        bot.send_document(call.message.chat.id, doc)
+                        # doc = open(const.apos_file, "rb")
+                        # bot.send_document(call.message.chat.id, doc)
                     elif call.data == const.dispensary:
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                               text=const.dispensary_txt, reply_markup=funcs.back_button(const.begin))
-                    elif call.data == const.train:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.train_txt, parse_mode=const.parse_mode,
-                                              reply_markup=funcs.back_button(const.begin))
                     elif call.data == const.discounts:
-                        funcs.discount_menu(bot, call)
+                        Storage.bonuses_data = funcs.discount_menu(bot, call)
                     elif call.data == const.sos:
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
                                               text=const.sos_txt, reply_markup=funcs.back_button(const.begin))
-                    elif call.data == const.metro:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.metro_txt, reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.bonus:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.bonus_txt, reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.tele2:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.tele2_txt,
-                                              reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.skyeng:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.skyeng_txt, reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.clock:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.clock_txt,
-                                              reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.x_fit:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.x_fit_txt, reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.boltay:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.boltay_txt,
-                                              reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.theory:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.theory_txt, reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.schnitzel:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.schnitzel_txt, reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.herb_store:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.herb_store_txt,
-                                              reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.driving_school:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.driving_school_txt,
-                                              reply_markup=funcs.back_button(const.discounts))
-                    elif call.data == const.buffet:
-                        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.buffet_txt, reply_markup=funcs.back_button(const.discounts))
+                    
+                    #
+                    # bonuses processing
+                    # bonus_data = [companies, discrs, tutorials, enddates]
+                    #
+                    else:
+                        for i in range(len(Storage.bonuses_data[0])):
+                            if call.data == Storage.bonuses_data[0][i]:
+                                bot.edit_message_text(chat_id=call.message.chat.id, 
+                                                      message_id=call.message.message_id,
+                                                      text=Storage.bonuses_data[1][i] + "\n\nСпособ получения: " + Storage.bonuses_data[2][i], 
+                                                      reply_markup=funcs.back_button(const.discounts))
         except Exception as e:
             print(repr(e))
 

@@ -1,10 +1,10 @@
 import smtplib
 import ssl
 import json
-
+import constants as const
 
 def send_email(receiver, key):
-    with open("config.json") as f:
+    with open(const.files["config"]) as f:
         config = json.load(f)
     port = 587  # For starttls
     smtp_server = "smtp.mail.ru"
