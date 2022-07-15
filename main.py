@@ -36,10 +36,10 @@ def main():
 
             markup = types.InlineKeyboardMarkup(row_width=2)
             # inline buttons
-            item1 = types.InlineKeyboardButton(const.yes_name, callback_data=const.in_union)
-            item2 = types.InlineKeyboardButton(const.no_name, callback_data=const.not_in_union)
+            item1 = types.InlineKeyboardButton(const.yes_name, callback_data="in_union")
+            item2 = types.InlineKeyboardButton(const.no_name, callback_data="not_in_union")
             markup.row(item1, item2)
-            bot.send_message(message.chat.id, const.hi_txt, reply_markup=markup)
+            bot.send_message(message.chat.id, const.txts["hi"], reply_markup=markup)
             # updating users.json
             funcs.users_file_dump(users)
 
@@ -58,7 +58,7 @@ def main():
             key = message.text
             funcs.check_code(bot, message, key, users)
         else:
-            bot.send_message(message.chat.id, const.sorry_txt)
+            bot.send_message(message.chat.id, const.txts["sorry"])
 
     # buttons interaction
     @bot.callback_query_handler(func=lambda call: True)
@@ -69,40 +69,41 @@ def main():
         try:
             if call.message:
                 bot.answer_callback_query(call.id, show_alert=False, text=const.bot_emoji)
-                if call.data == const.in_union:
+                
+                if call.data == "in_union":
                     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                          text=const.send_email_txt)
+                                          text=const.txts["send_email"])
                     users[str(call.message.chat.id)][const.auth_status] = const.auth_in_process
                     # updating users.json
-                    users_file = open(const.users_file, "w")
+                    users_file = open(const.files["users"], "w")
                     json.dump(users, users_file)
                     users_file.close()
-                elif call.data == const.not_in_union:
+                elif call.data == "not_in_union":
                     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                          text=const.union_txt, parse_mode=const.parse_mode)
+                                          text=const.txts["union"], parse_mode=const.parse_mode)
                     # doc = open(const.prof_file, "rb")
                     # bot.send_document(call.message.chat.id, doc)
                 if users[str(call.message.chat.id)][const.auth_status] == const.auth:
-                    if call.data == const.begin:
+                    if call.data == "begin":
                         funcs.start_menu(bot, call.message, const.edit)
-                    elif call.data == const.material_help:
+                    elif call.data == "material_help":
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.material_help_txt, parse_mode=const.parse_mode,
-                                              reply_markup=funcs.back_button(const.begin))
-                    elif call.data == const.apos:
+                                              text=const.txts["material_help"], parse_mode=const.parse_mode,
+                                              reply_markup=funcs.back_button("begin"))
+                    elif call.data == "apos":
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.apos_txt, parse_mode=const.parse_mode,
-                                              reply_markup=funcs.back_button(const.begin))
+                                              text=const.txts["apos"], parse_mode=const.parse_mode,
+                                              reply_markup=funcs.back_button("begin"))
                         # doc = open(const.apos_file, "rb")
                         # bot.send_document(call.message.chat.id, doc)
-                    elif call.data == const.dispensary:
+                    elif call.data == "dispensary":
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.dispensary_txt, reply_markup=funcs.back_button(const.begin))
-                    elif call.data == const.discounts:
+                                              text=const.txts["dispensary"], reply_markup=funcs.back_button("begin"))
+                    elif call.data == "discounts":
                         Storage.bonuses_data = funcs.discount_menu(bot, call)
-                    elif call.data == const.sos:
+                    elif call.data == "sos":
                         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
-                                              text=const.sos_txt, reply_markup=funcs.back_button(const.begin))
+                                              text=const.txts["sos"], reply_markup=funcs.back_button("begin"))
                     
                     #
                     # bonuses processing
@@ -114,7 +115,7 @@ def main():
                                 bot.edit_message_text(chat_id=call.message.chat.id, 
                                                       message_id=call.message.message_id,
                                                       text=Storage.bonuses_data[1][i] + "\n\nСпособ получения: " + Storage.bonuses_data[2][i], 
-                                                      reply_markup=funcs.back_button(const.discounts))
+                                                      reply_markup=funcs.back_button("discounts"))
         except Exception as e:
             print(repr(e))
 
